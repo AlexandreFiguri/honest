@@ -1,36 +1,95 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Honest
+
+Honest is a confidential business card exchange platform built on Zama FHEVM. It leverages fully homomorphic encryption to protect your contact information, ensuring that sensitive data is only revealed when both parties mutually agree to exchange. This allows both parties to better understand each other before important transactions begin.
+
+## Overview
+
+Traditional business card exchanges pose privacy risks—once shared, you lose control. Honest changes this paradigm by encrypting your sensitive information on-chain and only decrypting it after a mutual two-way exchange is confirmed.
+
+## Key Features
+
+- **Mutual consent exchange** - Both parties' encrypted info is only accessible when BOTH parties agree
+- **Selective privacy** - Public info (surname) for identification, encrypted info (phone, social, location) for privacy
+- **On-chain encryption** - All sensitive data stored as FHE ciphertexts (euint8/64/128/256)
+- **Permanent connections** - Once exchanged, contacts can always view each other's updated info
+- **No intermediary** - Peer-to-peer exchange without trusting a third party
+
+## Architecture
+
+The platform uses Zama FHEVM for end-to-end encrypted data management:
+
+- **Smart contract:** `HonestCard.sol` manages card creation, exchange requests, and ACL-based access control
+- **Encrypted fields:** Gender (euint8), Phone (euint64), Full Name (euint64), Social ID (euint128), Location (euint256)
+- **Public fields:** Surname only - for identification without exposing sensitive data
+- **Access control:** FHE.allow() grants decryption rights only after mutual exchange completion
+
+## How It Works
+
+```
+1. Create Card    -> Store surname (public) + encrypted contact info
+2. Browse Users   -> See surnames, but encrypted fields show "***"
+3. Request Exchange -> Send exchange request to another user
+4. Mutual Accept  -> When both parties request each other, exchange completes
+5. Decrypt & View -> Both parties can now decrypt each other's full card
+```
+
+## Smart Contract
+
+### Core Functions
+
+| Function | Description |
+|----------|-------------|
+| `createCard()` | Create business card with public + encrypted fields |
+| `updateCard()` | Update existing card (auto-syncs to all connections) |
+| `requestExchange()` | Request card exchange with target address |
+| `cancelRequest()` | Cancel pending exchange request |
+| `getPublicInfo()` | Get public info (surname) of any user |
+| `getEncryptedHandles()` | Get encrypted handles (only after exchange) |
+| `getConnections()` | Get list of completed exchanges |
+
+### Data Structure
+
+```solidity
+struct Card {
+    string surname;      // Public - visible to all
+    euint8 gender;       // Encrypted - 0=NotDisclosed, 1=Male, 2=Female, 3=Other
+    euint64 phone;       // Encrypted - phone number
+    euint64 fullName;    // Encrypted - full name
+    euint128 socialId;   // Encrypted - social media handle
+    euint256 location;   // Encrypted - location/address
+    bool exists;
+}
+```
+
+## Tech Stack
+
+- **Blockchain:** Zama Protocol 
+- **Frontend:** Next.js 15, React 19, TypeScript
+- **Styling:** Tailwind CSS 4
+- **Wallet:** RainbowKit + Wagmi v2
+- **FHE SDK:** Zama Relayer SDK for client-side encryption/decryption
 
 ## Getting Started
 
-First, run the development server:
-
 ```bash
-npm run dev
-# or
-yarn dev
-# or
+# Install dependencies
+pnpm install
+
+# Set environment variables
+cp env.template .env.local
+
+# Run development server
 pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## Environment Variables
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+```env
+NEXT_PUBLIC_WALLET_CONNECT_PROJECT_ID=your_project_id
+NEXT_PUBLIC_CHAIN_ID=9000
+NEXT_PUBLIC_CONTRACT_ADDRESS=0x...
+```
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## License
 
-## Learn More
-
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+MIT
