@@ -1,5 +1,5 @@
 [build]
-  command = "pnpm run build"
+  command = "pnpm next build --no-turbopack"
   publish = ".next"
 
 [[plugins]]
