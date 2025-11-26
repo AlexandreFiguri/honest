@@ -52,7 +52,7 @@ export function CreateCardModal({ isOpen, onClose, onSuccess }: CreateCardModalP
   const [surname, setSurname] = useState("");
   const [gender, setGender] = useState(0);
   const [fullName, setFullName] = useState("");
-  const [countryCode, setCountryCode] = useState("+86");
+  const [countryCode, setCountryCode] = useState("+1");
   const [phone, setPhone] = useState("");
   const [socialId, setSocialId] = useState("");
   const [location, setLocation] = useState("");
