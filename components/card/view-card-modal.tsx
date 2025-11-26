@@ -44,7 +44,7 @@ export function ViewCardModal({ address: targetAddress, isOpen, onClose }: ViewC
     address: HONEST_CARD_ADDRESS as `0x${string}`,
     abi: HONEST_CARD_ABI,
     functionName: "hasCompletedExchange",
-    args: myAddress && targetAddress ? [myAddress, targetAddress] : undefined,
+    args: myAddress && targetAddress ? [myAddress, targetAddress as `0x${string}`] : undefined,
     query: { enabled: isOpen && !!myAddress && !!targetAddress },
   });
 
